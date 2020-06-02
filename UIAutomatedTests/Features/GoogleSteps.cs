@@ -27,7 +27,7 @@ namespace UIAutomatedTests.Features
         public void WhenTheUserClicksOnTheMFeelingLucky(string p0)
         {
             var luckyButton = _webDriver.SeleniumDriver.FindElement(By.XPath(string.Format("//input[@value=\"{0}\"]", p0)));
-            _webDriver.Click(luckyButton);
+            _webDriver.ExecuteClick(luckyButton);
             _webDriver.Pause(15);
         }
 

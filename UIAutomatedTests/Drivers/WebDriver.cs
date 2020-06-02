@@ -1,16 +1,14 @@
 ﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System;
 
 namespace UIAutomatedTests.Drivers
 {
-    // this will be where we add helper driver methods then use this class for step files
     public class WebDriver
     {
         private readonly Driver _webDriver;
         private readonly ConfigurationDriver _configurationDriver;
-        public IWebDriver SeleniumDriver => _webDriver.Current;
-
 
         public WebDriver(Driver webDriver, ConfigurationDriver configurationDriver)
         {
@@ -18,17 +16,55 @@ namespace UIAutomatedTests.Drivers
             _configurationDriver = configurationDriver;
         }
 
-        // JS click event here
-        public void Click(IWebElement element)
+        public IWebDriver SeleniumDriver => _webDriver.Current;
+
+        public void ExecuteClick(IWebElement element)
         {
             var executor = (IJavaScriptExecutor)_webDriver.Current;
             executor.ExecuteScript("arguments[0].click();", element);
         }
 
+        public void ScrollTo(IWebElement element)
+        {
+            var executor = (IJavaScriptExecutor)_webDriver.Current;
+            executor.ExecuteScript("arguments[0].scrollIntoView(true);", element);
+        }
+
+        public void MoveTo(IWebElement element)
+        {
+            var action = new Actions(_webDriver.Current);
+            action.MoveToElement(element).Perform();
+        }
+
+        //Fix this or switch to system thread 
         public void Pause(int seconds = 2)
         {
             var timesSpan = TimeSpan.FromSeconds(seconds);
             var wait = new WebDriverWait(_webDriver.Current, timesSpan);
+        }
+
+        public void WaitUntilPageComplete()
+        {
+            string state;
+
+            do
+            {
+                state = (string)ExecuteScript("return document.readyState;");
+            }
+            while (state != "complete");
+        }
+
+        private object ExecuteScript(string script, IWebElement element = null)
+        {
+            var executor = (IJavaScriptExecutor)_webDriver.Current;
+            if(element == null)
+            {
+                return executor.ExecuteScript(script);
+            }
+            else
+            {
+                return executor.ExecuteScript(script, element);
+            }
         }
     }
 }
